@@ -1,468 +1,481 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>提示詞大師訓練營</title>
-    
-    <!-- 引入 Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- 引入 React 與 ReactDOM -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    
-    <!-- 引入 Babel 用來在瀏覽器中翻譯 JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>提示詞大師訓練營</title>
+  
+  <!-- 引入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- 引入 React 與 ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- 引入 Babel (用來在瀏覽器中編譯 JSX) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body class="bg-slate-100">
-    <div id="root"></div>
+  <div id="root"></div>
 
-    <!-- 這裡開始是我們的 React 應用程式 -->
-    <script type="text/babel">
-        const { useState } = React;
+  <!-- React 程式碼寫在這裡 -->
+  <script type="text/babel">
+    const { useState } = React;
 
-        // --- SVG 圖示元件定義 ---
-        const Trophy = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
-        const ChevronRight = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>;
-        const BookOpen = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
-        const BrainCircuit = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 4.5a2.5 2.5 0 0 0-4.96-.46 2.5 2.5 0 0 0-1.98 3 2.5 2.5 0 0 0-1.32 4.24 3 3 0 0 0 .34 5.58 2.5 2.5 0 0 0 2.96 3.08 2.5 2.5 0 0 0 4.91.05L12 20V4.5Z"/><path d="M16 8V5c0-1.1.9-2 2-2"/><path d="M12 13h4"/><path d="M12 18h6a2 2 0 0 1 2 2v1"/><path d="M12 8h8"/></svg>;
-        const CheckCircle2 = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>;
-        const XCircle = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>;
-        const Star = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
-        const MessageSquare = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
-        const RefreshCw = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>;
-        const Bot = ({ className }) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 8v4"/><path d="M8 12h8"/><path d="M13 16h-2"/></svg>;
+    // --- 圖示元件 (取代原本的 Lucide 圖示) ---
+    const IconTrophy = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
+    const IconChevronRight = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>;
+    const IconBookOpen = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
+    const IconBrainCircuit = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 4.5a2.5 2.5 0 0 0-4.96-.46 2.5 2.5 0 0 0-1.98 3 2.5 2.5 0 0 0-1.32 4.24 3 3 0 0 0 .34 5.58 2.5 2.5 0 0 0 2.96 3.08 2.5 2.5 0 0 0 4.91.05L12 20V4.5Z"/><path d="M16 8V5c0-1.1.9-2 2-2"/><path d="M12 13h4"/><path d="M12 18h6a2 2 0 0 1 2 2v1"/><path d="M12 8h8"/></svg>;
+    const IconCheckCircle = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>;
+    const IconXCircle = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>;
+    const IconStar = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
+    const IconMessageSquare = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
+    const IconRefreshCw = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>;
+    const IconBot = ({ className }) => <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>;
 
-        const App = () => {
-          const [currentStep, setCurrentStep] = useState(0);
-          const [score, setScore] = useState(0);
-          const [feedback, setFeedback] = useState(null);
-          
-          const [l4Text, setL4Text] = useState("");
-          const [l4AiResponse, setL4AiResponse] = useState("");
-          const [isGenerating, setIsGenerating] = useState(false);
+    const App = () => {
+      const [currentStep, setCurrentStep] = useState(0);
+      const [score, setScore] = useState(0);
+      const [feedback, setFeedback] = useState(null);
+      
+      // Level 4 States
+      const [l4Text, setL4Text] = useState("");
+      const [l4AiResponse, setL4AiResponse] = useState("");
+      const [isGenerating, setIsGenerating] = useState(false);
 
-          const [finalText, setFinalText] = useState("");
-          const [evaluation, setEvaluation] = useState([]);
+      // Level 5 States
+      const [finalText, setFinalText] = useState("");
+      const [evaluation, setEvaluation] = useState([]);
 
-          const simulateAIResponse = async (promptText, isEval = false) => {
-            setIsGenerating(true);
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            setIsGenerating(false);
+      // 模擬 AI 回應引擎 (適合靜態部署)
+      const simulateAIResponse = async (promptText, isEval = false) => {
+        setIsGenerating(true);
+        
+        // 模擬 AI 思考的延遲感 (1.5 秒)
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        setIsGenerating(false);
 
-            if (isEval) {
-              let points = 0;
-              let details = [];
-              const text = promptText;
+        if (isEval) {
+          let points = 0;
+          let details = [];
+          const text = promptText;
 
-              const hasRole = /老師|角色|扮演|專家|你是一位/.test(text);
-              if (hasRole) {
-                points += 20;
-                details.push({ pass: true, msg: "成功設定角色！AI 知道自己是誰了。" });
-              } else {
-                details.push({ pass: false, msg: "忘記設定角色了 (建議加上：你是一位...老師)" });
-              }
+          const hasRole = /老師|角色|扮演|專家|你是一位/.test(text);
+          if (hasRole) {
+            points += 15;
+            details.push({ pass: true, msg: "成功設定角色！AI 知道自己是誰了。" });
+          } else {
+            details.push({ pass: false, msg: "忘記設定角色了 (建議加上：你是一位...老師)" });
+          }
 
-              const hasSteps = /步驟|一步|先|思考|過程|然後/.test(text);
-              if (hasSteps) {
-                points += 20;
-                details.push({ pass: true, msg: "成功要求分步驟說明 (思維鏈)！" });
-              } else {
-                details.push({ pass: false, msg: "忘記要求分步驟了 (建議加上：請一步一步說明)" });
-              }
+          const hasSteps = /步驟|一步|先|思考|過程|然後/.test(text);
+          if (hasSteps) {
+            points += 15;
+            details.push({ pass: true, msg: "成功要求分步驟說明 (思維鏈)！" });
+          } else {
+            details.push({ pass: false, msg: "忘記要求分步驟了 (建議加上：請一步一步說明)" });
+          }
 
-              const hasAnalogy = /比喻|例子|像|煮飯|工廠|生活/.test(text);
-              if (hasAnalogy) {
-                points += 20;
-                details.push({ pass: true, msg: "成功加入生活化比喻！這會讓解釋更易懂。" });
-              } else {
-                details.push({ pass: false, msg: "忘記要求生活化比喻了 (建議加上：請用生活中的例子來比喻)" });
-              }
+          const hasAnalogy = /比喻|例子|像|煮飯|工廠|生活/.test(text);
+          if (hasAnalogy) {
+            points += 15;
+            details.push({ pass: true, msg: "成功加入生活化比喻！這會讓解釋更易懂。" });
+          } else {
+            details.push({ pass: false, msg: "忘記要求生活化比喻了 (建議加上：請用生活中的例子來比喻)" });
+          }
 
-              let feedbackMsg = "繼續加油！加上缺少的元素，提示詞會更強大喔。";
-              if (points === 60) feedbackMsg = "太完美了！這是一段大師級的提示詞！";
-              else if (points >= 40) feedbackMsg = "非常棒！只差一點點就完美了。";
+          const hasConstraint = /限制|不能|不要|以內|不超過|字內/.test(text);
+          if (hasConstraint) {
+            points += 15;
+            details.push({ pass: true, msg: "成功設定限制條件！AI 不會亂講話了。" });
+          } else {
+            details.push({ pass: false, msg: "忘記設定限制了 (建議加上：請控制在100字內 或 不要使用艱澀字詞)" });
+          }
 
-              return { points, feedbackMsg, details };
-            } else {
-              const text = promptText;
-              if (/請假|感冒|發燒|生病|老師/.test(text)) {
-                return `【AI 回應模擬】：\n\n親愛的老師您好，\n\n我是 [學生姓名]。因為今天突發感冒發燒，身體非常不適，家長已準備帶我就醫。懇請老師批准今天的病假，我會在家好好休養，並在康復後補上落下的進度。\n\n感謝老師的體諒！\n\n學生 [學生姓名] 敬上`;
-              } else {
-                return `【AI 回應模擬】：\n\n我收到了您的提示詞：「${text.substring(0, 15)}...」\n\n(導師小提示：由於這是模擬沙盒，如果您在提示詞中加入「請假」、「感冒」或「老師」等具體字眼，才能觸發正確的請假信範例喔！試著把背景寫得更具體吧！)`;
-              }
-            }
-          };
+          let feedbackMsg = "繼續加油！加上缺少的元素，提示詞會更強大喔。";
+          if (points === 60) feedbackMsg = "太完美了！這是一段大師級的提示詞！";
+          else if (points >= 45) feedbackMsg = "非常棒！只差一點點就完美了。";
 
-          const steps = [
-            {
-              title: "歡迎來到提示詞大師訓練營！",
-              icon: <Star className="w-8 h-8 text-yellow-500" />,
-              content: (
-                <div className="space-y-4 text-gray-700">
-                  <p>哈囉！準備好駕馭強大的 AI 了嗎？在這個訓練營中，我們將透過 5 個關卡，帶你從新手變成精通提示詞 (Prompt) 的大師。</p>
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mt-4">
-                    <h4 className="font-bold text-blue-800 flex items-center gap-2 mb-2">
-                      <Star className="w-5 h-5" /> 課程目標
-                    </h4>
-                    <ul className="list-disc list-inside space-y-2 text-blue-700 mt-2">
-                      <li>掌握 RCTF 四大基礎支柱</li>
-                      <li>學會「思維鏈」與「除錯」進階技巧</li>
-                      <li>進行模擬 AI 實戰演練，並獲得大師認證！</li>
-                    </ul>
-                  </div>
-                </div>
-              ),
-              type: "intro"
-            },
-            {
-              title: "第 1 關：四大支柱 (RCTF)",
-              icon: <BookOpen className="w-8 h-8 text-blue-500" />,
-              content: (
-                <div className="space-y-4 text-gray-700">
-                  <p>要讓 AI 聽懂你的話，你需要給它一個完整的框架 <strong>RCTF</strong>：</p>
-                  <ul className="space-y-2 bg-gray-50 p-4 rounded-lg">
-                    <li>🎭 <strong>R (Role) 角色：</strong> (例：你是一位國文老師)</li>
-                    <li>背景 <strong>C (Context) 背景：</strong> (例：我要參加演講比賽)</li>
-                    <li>📝 <strong>T (Task) 任務：</strong> (例：幫我寫一篇講稿)</li>
-                    <li>📊 <strong>F (Format) 格式：</strong> (例：請包含開場白並分成三段)</li>
-                  </ul>
-                  <div className="mt-6 border-t pt-4">
-                    <h4 className="font-bold text-lg mb-4">🧠 隨堂測驗</h4>
-                    <p className="mb-2">如果你想要 AI 用「表格」來呈現資料，這屬於 RCTF 中的哪一個支柱？</p>
-                  </div>
-                </div>
-              ),
-              type: "quiz",
-              options: [
-                { id: 'r', text: "角色 (Role)", correct: false, msg: "不對喔，角色是設定 AI 的身分。" },
-                { id: 'f', text: "格式 (Format)", correct: true, msg: "答對了！指定用表格、清單或特定字數，都是格式 (Format) 的要求！" },
-                { id: 't', text: "任務 (Task)", correct: false, msg: "任務是告訴 AI 要做什麼，但「表格」是呈現的方式喔。" }
-              ]
-            },
-            {
-              title: "第 2 關：進階技巧 (教 AI 思考)",
-              icon: <BrainCircuit className="w-8 h-8 text-purple-500" />,
-              content: (
-                <div className="space-y-4 text-gray-700">
-                  <p>有時候 AI 會跳太快或抓錯重點，這時我們需要秘密武器：</p>
-                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
-                     <h4 className="font-bold text-purple-800">思維鏈 (Chain of Thought, CoT)</h4>
-                     <p className="text-sm mt-2">叫 AI 不要衝動，先列出步驟。例如在提示詞加入：「請深呼吸，一步一步分析原因後再給出結論。」這能大幅提升 AI 的邏輯正確率！</p>
-                  </div>
-                  <div className="mt-6 border-t pt-4">
-                    <h4 className="font-bold text-lg mb-4">🧠 隨堂測驗</h4>
-                    <p className="mb-2">為避免 AI 直接給出錯誤的數學答案，你該在提示詞加入什麼？</p>
-                  </div>
-                </div>
-              ),
-              type: "quiz",
-              options: [
-                { id: 'a', text: "請用文言文回答", correct: false, msg: "文言文很酷，但不會讓數學變正確喔！" },
-                { id: 'b', text: "請一步一步列出計算過程", correct: true, msg: "完全正確！這就是「思維鏈」，讓 AI 慢下來思考。" }
-              ]
-            },
-            {
-              title: "第 3 關：迭代與除錯 (優化)",
-              icon: <RefreshCw className="w-8 h-8 text-teal-500" />,
-              content: (
-                <div className="space-y-4 text-gray-700">
-                  <p>沒有提示詞是一次完美的！當 AI 給的答案不如預期，你可以使用這招：</p>
-                  <div className="bg-teal-50 p-4 rounded-lg border border-teal-100">
-                     <h4 className="font-bold text-teal-800">負向提示 (Negative Prompt) 與 反向提問</h4>
-                     <p className="text-sm mt-2"><strong>負向提示：</strong>告訴它「不要做什麼」(例：不要使用過度專業的術語)。<br/><strong>反向提問：</strong>反問 AI (例：為了寫出這篇報告，你還需要我提供什麼資訊？)</p>
-                  </div>
-                  <div className="mt-6 border-t pt-4">
-                    <h4 className="font-bold text-lg mb-4">🧠 隨堂測驗</h4>
-                    <p className="mb-2">發現 AI 寫的報告廢話太多、太長了，你該怎麼修改提示詞？</p>
-                  </div>
-                </div>
-              ),
-              type: "quiz",
-              options: [
-                { id: 'a', text: "加入：『請在 200 字以內完成，並只條列重點』", correct: true, msg: "正確！加上明確的限制(限制範圍)，就是最好的除錯法！" },
-                { id: 'b', text: "加入：『請寫得豐富一點』", correct: false, msg: "這會讓 AI 寫出更多廢話喔！" }
-              ]
-            },
-            {
-              title: "第 4 關：實境沙盒 (呼叫 AI)",
-              icon: <Bot className="w-8 h-8 text-indigo-500" />,
-              content: (
-                <div className="space-y-4 text-gray-700">
-                  <p>現在，我們進入模擬器練習！</p>
-                  <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
-                    <p className="font-bold text-indigo-800 mb-2">📜 任務：寫一封請假信</p>
-                    <p className="text-sm text-indigo-700 mb-2">請試著寫一段提示詞，請 AI 幫你寫一封「感冒發燒要跟班導師請假」的信。試著運用前面學過的 <strong>角色、背景、任務</strong> 技巧。</p>
-                  </div>
-                </div>
-              ),
-              type: "sandbox"
-            },
-            {
-              title: "第 5 關：終極大師實戰",
-              icon: <MessageSquare className="w-8 h-8 text-red-500" />,
-              content: (
-                <div className="space-y-4 text-gray-700">
-                  <p>這是最後一關！你的提示詞將交由 <strong>AI 評審導師</strong> 進行系統審核與打分。</p>
-                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                    <p className="font-bold text-orange-800">📜 任務背景：</p>
-                    <p className="text-sm">你有一位同學對「光合作用」很不了解，覺得課本太難了。請你寫一段提示詞，讓 AI 變成一位老師來教他。</p>
-                    <ul className="text-sm mt-2 list-disc list-inside text-orange-700 font-bold">
-                      <li>任務要求 1：設定 AI 的角色</li>
-                      <li>任務要求 2：要求分步驟說明 (思維鏈)</li>
-                      <li>任務要求 3：要求用生活化的比喻 (如：煮飯、工廠)</li>
-                    </ul>
-                  </div>
-                </div>
-              ),
-              type: "practice"
-            },
-            {
-              title: "🎉 訓練營結業！",
-              icon: <Trophy className="w-10 h-10 text-yellow-500" />,
-              content: (
-                <div className="text-center space-y-6">
-                  <h2 className="text-3xl font-bold text-gray-800">恭喜你成為提示詞大師！</h2>
-                  <div className="bg-yellow-50 p-8 rounded-full w-48 h-48 mx-auto flex flex-col items-center justify-center border-4 border-yellow-400 shadow-lg">
-                    <span className="text-5xl font-black text-yellow-600">{score}</span>
-                    <span className="text-lg font-bold text-yellow-700">總分</span>
-                  </div>
-                  <p className="text-xl text-gray-600">你已經學會了如何精準地與 AI 溝通的底層邏輯！</p>
-                  <button 
-                    onClick={() => window.location.reload()}
-                    className="mt-8 px-6 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors"
-                  >
-                    再挑戰一次
-                  </button>
-                </div>
-              ),
-              type: "end"
-            }
-          ];
+          return { points, feedbackMsg, details };
+        } else {
+          const text = promptText;
+          if (/請假|感冒|發燒|生病|老師/.test(text)) {
+            return `【AI 回應模擬】：\n\n親愛的老師您好，\n\n我是 [學生姓名]。因為今天突發感冒發燒，身體非常不適，家長已準備帶我就醫。懇請老師批准今天的病假，我會在家好好休養，並在康復後補上落下的進度。\n\n感謝老師的體諒！\n\n學生 [學生姓名] 敬上`;
+          } else {
+            return `【AI 回應模擬】：\n\n我收到了您的提示詞：「${text.substring(0, 15)}...」\n\n(導師小提示：由於這是模擬沙盒，如果您在提示詞中加入「請假」、「感冒」或「老師」等具體字眼，才能觸發正確的請假信範例喔！試著把背景寫得更具體吧！)`;
+          }
+        }
+      };
 
-          const handleOptionClick = (option) => {
-            if (feedback) return; 
-            if (option.correct) {
-              setScore(score + 10); 
-              setFeedback({ type: 'success', msg: option.msg });
-            } else {
-              setFeedback({ type: 'error', msg: option.msg });
-            }
-          };
+      const steps = [
+        {
+          title: "歡迎來到提示詞大師訓練營！",
+          icon: <IconStar className="w-8 h-8 text-yellow-500" />,
+          content: (
+            <div className="space-y-4 text-gray-700">
+              <p>哈囉！準備好駕馭強大的 AI 了嗎？在這個訓練營中，我們將透過 5 個關卡，帶你從新手變成精通提示詞 (Prompt) 的大師。</p>
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mt-4">
+                <h4 className="font-bold text-blue-800 flex items-center gap-2 mb-2">
+                  <IconStar className="w-5 h-5" /> 課程目標
+                </h4>
+                <ul className="list-disc list-inside space-y-2 text-blue-700 mt-2">
+                  <li>掌握 RCTFC 五大基礎支柱</li>
+                  <li>學會「思維鏈」與「除錯」進階技巧</li>
+                  <li>進行模擬 AI 實戰演練，並獲得大師認證！</li>
+                </ul>
+              </div>
+            </div>
+          ),
+          type: "intro"
+        },
+        {
+          title: "第 1 關：五大支柱 (RCTFC)",
+          icon: <IconBookOpen className="w-8 h-8 text-blue-500" />,
+          content: (
+            <div className="space-y-4 text-gray-700">
+              <p>要讓 AI 聽懂你的話，你需要給它一個完整的框架 <strong>RCTFC</strong>：</p>
+              <ul className="space-y-2 bg-gray-50 p-4 rounded-lg">
+                <li>🎭 <strong>R (Role) 角色：</strong> (例：你是一位國文老師)</li>
+                <li>背景 <strong>C (Context) 背景：</strong> (例：我要參加演講比賽)</li>
+                <li>📝 <strong>T (Task) 任務：</strong> (例：幫我寫一篇講稿)</li>
+                <li>📊 <strong>F (Format) 格式：</strong> (例：請包含開場白並分成三段)</li>
+                <li>🛑 <strong>C (Constraint) 限制：</strong> (例：字數在500字內，不要用文言文)</li>
+              </ul>
+              <div className="mt-6 border-t pt-4">
+                <h4 className="font-bold text-lg mb-4">🧠 隨堂測驗</h4>
+                <p className="mb-2">如果你告訴 AI 「請不要超過 100 字，且不能使用英文」，這屬於哪一個支柱？</p>
+              </div>
+            </div>
+          ),
+          type: "quiz",
+          options: [
+            { id: 't', text: "任務 (Task)", correct: false, msg: "不對喔，任務是說明要做什麼，這裡是在規定「不能做什麼」。" },
+            { id: 'f', text: "格式 (Format)", correct: false, msg: "雖然字數有關聯，但「不能使用英文」明確是一種限制 (Constraint)。" },
+            { id: 'c', text: "限制 (Constraint)", correct: true, msg: "答對了！設立邊界與規則，能有效防止 AI 偏題或給出不想要的內容！" }
+          ]
+        },
+        {
+          title: "第 2 關：進階技巧 (教 AI 思考)",
+          icon: <IconBrainCircuit className="w-8 h-8 text-purple-500" />,
+          content: (
+            <div className="space-y-4 text-gray-700">
+              <p>有時候 AI 會跳太快或抓錯重點，這時我們需要秘密武器：</p>
+              <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                 <h4 className="font-bold text-purple-800">思維鏈 (Chain of Thought, CoT)</h4>
+                 <p className="text-sm mt-2">叫 AI 不要衝動，先列出步驟。例如在提示詞加入：「請深呼吸，一步一步分析原因後再給出結論。」這能大幅提升 AI 的邏輯正確率！</p>
+              </div>
+              <div className="mt-6 border-t pt-4">
+                <h4 className="font-bold text-lg mb-4">🧠 隨堂測驗</h4>
+                <p className="mb-2">為避免 AI 直接給出錯誤的數學答案，你該在提示詞加入什麼？</p>
+              </div>
+            </div>
+          ),
+          type: "quiz",
+          options: [
+            { id: 'a', text: "請用文言文回答", correct: false, msg: "文言文很酷，但不會讓數學變正確喔！" },
+            { id: 'b', text: "請一步一步列出計算過程", correct: true, msg: "完全正確！這就是「思維鏈」，讓 AI 慢下來思考。" }
+          ]
+        },
+        {
+          title: "第 3 關：迭代與除錯 (優化)",
+          icon: <IconRefreshCw className="w-8 h-8 text-teal-500" />,
+          content: (
+            <div className="space-y-4 text-gray-700">
+              <p>沒有提示詞是一次完美的！當 AI 給的答案不如預期，你可以使用這招：</p>
+              <div className="bg-teal-50 p-4 rounded-lg border border-teal-100">
+                 <h4 className="font-bold text-teal-800">負向提示 (Negative Prompt) 與 反向提問</h4>
+                 <p className="text-sm mt-2"><strong>負向提示：</strong>告訴它「不要做什麼」(例：不要使用過度專業的術語)。<br/><strong>反向提問：</strong>反問 AI (例：為了寫出這篇報告，你還需要我提供什麼資訊？)</p>
+              </div>
+              <div className="mt-6 border-t pt-4">
+                <h4 className="font-bold text-lg mb-4">🧠 隨堂測驗</h4>
+                <p className="mb-2">發現 AI 寫的報告廢話太多、太長了，你該怎麼修改提示詞？</p>
+              </div>
+            </div>
+          ),
+          type: "quiz",
+          options: [
+            { id: 'a', text: "加入：『請在 200 字以內完成，並只條列重點』", correct: true, msg: "正確！加上明確的限制(限制範圍)，就是最好的除錯法！" },
+            { id: 'b', text: "加入：『請寫得豐富一點』", correct: false, msg: "這會讓 AI 寫出更多廢話喔！" }
+          ]
+        },
+        {
+          title: "第 4 關：實境沙盒 (呼叫 AI)",
+          icon: <IconBot className="w-8 h-8 text-indigo-500" />,
+          content: (
+            <div className="space-y-4 text-gray-700">
+              <p>現在，我們進入模擬器練習！</p>
+              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                <p className="font-bold text-indigo-800 mb-2">📜 任務：寫一封請假信</p>
+                <p className="text-sm text-indigo-700 mb-2">請試著寫一段提示詞，請 AI 幫你寫一封「感冒發燒要跟班導師請假」的信。試著運用前面學過的 <strong>角色、背景、任務、限制</strong> 等技巧。</p>
+              </div>
+            </div>
+          ),
+          type: "sandbox"
+        },
+        {
+          title: "第 5 關：終極大師實戰",
+          icon: <IconMessageSquare className="w-8 h-8 text-red-500" />,
+          content: (
+            <div className="space-y-4 text-gray-700">
+              <p>這是最後一關！你的提示詞將交由 <strong>AI 評審導師</strong> 進行系統審核與打分。</p>
+              <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                <p className="font-bold text-orange-800">📜 任務背景：</p>
+                <p className="text-sm">你有一位同學對「光合作用」很不了解，覺得課本太難了。請你寫一段提示詞，讓 AI 變成一位老師來教他。</p>
+                <ul className="text-sm mt-2 list-disc list-inside text-orange-700 font-bold">
+                  <li>任務要求 1：設定 AI 的角色</li>
+                  <li>任務要求 2：要求分步驟說明 (思維鏈)</li>
+                  <li>任務要求 3：要求用生活化的比喻 (如：煮飯、工廠)</li>
+                  <li>任務要求 4：設定一項限制 (如：字數在100字內，或不要用專有名詞)</li>
+                </ul>
+              </div>
+            </div>
+          ),
+          type: "practice"
+        },
+        {
+          title: "🎉 訓練營結業！",
+          icon: <IconTrophy className="w-10 h-10 text-yellow-500" />,
+          content: (
+            <div className="text-center space-y-6">
+              <h2 className="text-3xl font-bold text-gray-800">恭喜你成為提示詞大師！</h2>
+              <div className="bg-yellow-50 p-8 rounded-full w-48 h-48 mx-auto flex flex-col items-center justify-center border-4 border-yellow-400 shadow-lg">
+                <span className="text-5xl font-black text-yellow-600">{score}</span>
+                <span className="text-lg font-bold text-yellow-700">總分</span>
+              </div>
+              <p className="text-xl text-gray-600">你已經學會了如何精準地與 AI 溝通的底層邏輯！</p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="mt-8 px-6 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors"
+              >
+                再挑戰一次
+              </button>
+            </div>
+          ),
+          type: "end"
+        }
+      ];
 
-          const handleSandboxSubmit = async () => {
-            if (!l4Text.trim()) return;
-            const response = await simulateAIResponse(l4Text, false);
-            if (response) {
-              setL4AiResponse(response);
-              setScore(score + 10); 
-              setFeedback({ type: 'success', msg: "生成成功！這就是 AI 給你的回覆模擬。" });
-            }
-          };
+      const handleOptionClick = (option) => {
+        if (feedback) return; 
+        if (option.correct) {
+          setScore(score + 10); 
+          setFeedback({ type: 'success', msg: option.msg });
+        } else {
+          setFeedback({ type: 'error', msg: option.msg });
+        }
+      };
 
-          const evaluatePractice = async () => {
-            if (!finalText.trim() || finalText.length < 10) {
-              setFeedback({ type: 'error', msg: "請多寫一點內容喔！提示詞太短 AI 會聽不懂。" });
-              return;
-            }
+      const handleSandboxSubmit = async () => {
+        if (!l4Text.trim()) return;
+        const response = await simulateAIResponse(l4Text, false);
+        if (response) {
+          setL4AiResponse(response);
+          setScore(score + 10); 
+          setFeedback({ type: 'success', msg: "生成成功！這就是 AI 給你的回覆模擬。" });
+        }
+      };
 
-            const evalResult = await simulateAIResponse(finalText, true);
+      const evaluatePractice = async () => {
+        if (!finalText.trim() || finalText.length < 10) {
+          setFeedback({ type: 'error', msg: "請多寫一點內容喔！提示詞太短 AI 會聽不懂。" });
+          return;
+        }
+
+        const evalResult = await simulateAIResponse(finalText, true);
+        
+        if (evalResult) {
+          setScore(score + (evalResult.points || 0));
+          setEvaluation(evalResult.details || []);
+          setFeedback({ 
+            type: 'success', 
+            msg: evalResult.feedbackMsg || `實戰評分完成！獲得 ${evalResult.points} 分。` 
+          });
+        }
+      };
+
+      const handleNextStep = () => {
+        setCurrentStep(currentStep + 1);
+        setFeedback(null);
+        setL4AiResponse("");
+      };
+
+      const currentData = steps[currentStep];
+
+      return (
+        <div className="min-h-screen bg-slate-100 font-sans p-4 md:p-8 flex items-center justify-center">
+          <div className="max-w-3xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
             
-            if (evalResult) {
-              setScore(score + (evalResult.points || 0));
-              setEvaluation(evalResult.details || []);
-              setFeedback({ 
-                type: 'success', 
-                msg: evalResult.feedbackMsg || `實戰評分完成！獲得 ${evalResult.points} 分。` 
-              });
-            }
-          };
-
-          const handleNextStep = () => {
-            setCurrentStep(currentStep + 1);
-            setFeedback(null);
-            setL4AiResponse("");
-          };
-
-          const currentData = steps[currentStep];
-
-          return (
-            <div className="min-h-screen font-sans p-4 md:p-8 flex items-center justify-center">
-              <div className="max-w-3xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
-                
-                {/* Header */}
-                <div className="bg-slate-800 text-white p-6 flex justify-between items-center">
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-3">
-                      <Trophy className="text-yellow-400 w-8 h-8" />
-                      <h1 className="text-2xl font-bold tracking-wider">提示詞大師訓練營</h1>
-                    </div>
-                    <div className="text-sm text-slate-300 mt-1 md:ml-11 font-medium tracking-wide">
-                      南開科技大學大衛林老師設計
-                    </div>
-                  </div>
-                  <div className="bg-slate-700 px-4 py-2 rounded-full font-bold text-yellow-400 shrink-0 ml-2">
-                    分數: {score}
-                  </div>
+            {/* Header */}
+            <div className="bg-slate-800 text-white p-6 flex justify-between items-center">
+              <div className="flex flex-col">
+                <div className="flex items-center gap-3">
+                  <IconTrophy className="text-yellow-400 w-8 h-8" />
+                  <h1 className="text-2xl font-bold tracking-wider">提示詞大師訓練營</h1>
                 </div>
-
-                {/* Progress Bar */}
-                <div className="h-2 bg-slate-200">
-                  <div 
-                    className="h-full bg-blue-500 transition-all duration-500 ease-in-out"
-                    style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
-                  ></div>
+                <div className="text-sm text-slate-300 mt-1 md:ml-11 font-medium tracking-wide">
+                  南開科技大學大衛林老師設計
                 </div>
+              </div>
+              <div className="bg-slate-700 px-4 py-2 rounded-full font-bold text-yellow-400 shrink-0 ml-2">
+                分數: {score}
+              </div>
+            </div>
 
-                {/* Content Area */}
-                <div className="p-6 md:p-10 min-h-[400px] flex flex-col">
-                  
-                  {currentData.type !== 'end' && (
-                    <div className="flex items-center gap-4 mb-6 pb-4 border-b">
-                      {currentData.icon}
-                      <h2 className="text-2xl font-bold text-gray-800">{currentData.title}</h2>
-                    </div>
-                  )}
+            {/* Progress Bar */}
+            <div className="h-2 bg-slate-200">
+              <div 
+                className="h-full bg-blue-500 transition-all duration-500 ease-in-out"
+                style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
+              ></div>
+            </div>
 
-                  <div className="flex-grow">
-                    {currentData.content}
+            {/* Content Area */}
+            <div className="p-6 md:p-10 min-h-[400px] flex flex-col">
+              
+              {currentData.type !== 'end' && (
+                <div className="flex items-center gap-4 mb-6 pb-4 border-b">
+                  {currentData.icon}
+                  <h2 className="text-2xl font-bold text-gray-800">{currentData.title}</h2>
+                </div>
+              )}
 
-                    {/* 選擇題區塊 */}
-                    {currentData.type === 'quiz' && (
-                      <div className="mt-6 space-y-3">
-                        {currentData.options.map((opt) => (
-                          <button
-                            key={opt.id}
-                            onClick={() => handleOptionClick(opt)}
-                            disabled={feedback !== null}
-                            className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
-                              feedback 
-                                ? opt.correct 
-                                  ? 'bg-green-50 border-green-400 text-green-800'
-                                  : 'bg-gray-50 border-gray-200 text-gray-400 opacity-50'
-                                : 'bg-white border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-700'
-                            }`}
-                          >
-                            {opt.text}
-                          </button>
-                        ))}
-                      </div>
+              <div className="flex-grow">
+                {currentData.content}
+
+                {/* 選擇題區塊 */}
+                {currentData.type === 'quiz' && (
+                  <div className="mt-6 space-y-3">
+                    {currentData.options.map((opt) => (
+                      <button
+                        key={opt.id}
+                        onClick={() => handleOptionClick(opt)}
+                        disabled={feedback !== null}
+                        className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                          feedback 
+                            ? opt.correct 
+                              ? 'bg-green-50 border-green-400 text-green-800'
+                              : 'bg-gray-50 border-gray-200 text-gray-400 opacity-50'
+                            : 'bg-white border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-700'
+                        }`}
+                      >
+                        {opt.text}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* 第四關：沙盒實境 (模擬) */}
+                {currentData.type === 'sandbox' && (
+                  <div className="mt-6 space-y-4">
+                    <textarea
+                      className="w-full h-24 p-3 border-2 border-indigo-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none resize-none text-gray-700"
+                      placeholder="輸入你的提示詞 (例如：你是一位學生，請幫我寫一封請假信...)"
+                      value={l4Text}
+                      onChange={(e) => setL4Text(e.target.value)}
+                      disabled={feedback !== null || isGenerating}
+                    ></textarea>
+                    
+                    {!feedback && (
+                      <button 
+                        onClick={handleSandboxSubmit}
+                        disabled={isGenerating || !l4Text.trim()}
+                        className={`w-full text-white font-bold py-3 px-6 rounded-xl transition-colors flex justify-center items-center gap-2 ${
+                          !l4Text.trim() ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'
+                        }`}
+                      >
+                        <IconBot className="w-5 h-5"/>
+                        {isGenerating ? "模擬 AI 思考中..." : "送出測試"}
+                      </button>
                     )}
 
-                    {/* 第四關：沙盒實境 (模擬) */}
-                    {currentData.type === 'sandbox' && (
-                      <div className="mt-6 space-y-4">
-                        <textarea
-                          className="w-full h-24 p-3 border-2 border-indigo-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none resize-none text-gray-700"
-                          placeholder="輸入你的提示詞 (例如：你是一位學生，請幫我寫一封請假信...)"
-                          value={l4Text}
-                          onChange={(e) => setL4Text(e.target.value)}
-                          disabled={feedback !== null || isGenerating}
-                        ></textarea>
-                        
-                        {!feedback && (
-                          <button 
-                            onClick={handleSandboxSubmit}
-                            disabled={isGenerating || !l4Text.trim()}
-                            className={`w-full text-white font-bold py-3 px-6 rounded-xl transition-colors flex justify-center items-center gap-2 ${
-                              !l4Text.trim() ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'
-                            }`}
-                          >
-                            <Bot className="w-5 h-5" />
-                            {isGenerating ? "模擬 AI 思考中..." : "送出測試"}
-                          </button>
-                        )}
-
-                        {l4AiResponse && (
-                          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 mt-4 whitespace-pre-wrap">
-                            <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
-                              <Star className="w-5 h-5 text-yellow-500" /> AI 的回應：
-                            </h4>
-                            <p className="text-gray-700 text-sm">{l4AiResponse}</p>
-                          </div>
-                        )}
+                    {l4AiResponse && (
+                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 mt-4 whitespace-pre-wrap">
+                        <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                          <IconStar className="w-5 h-5 text-yellow-500" /> AI 的回應：
+                        </h4>
+                        <p className="text-gray-700 text-sm">{l4AiResponse}</p>
                       </div>
                     )}
+                  </div>
+                )}
 
-                    {/* 第五關：實戰輸入區塊 (模擬評分) */}
-                    {currentData.type === 'practice' && (
-                      <div className="mt-6 space-y-4">
-                        <textarea
-                          className="w-full h-32 p-4 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none resize-none text-gray-700 text-lg"
-                          placeholder="請在此輸入你的完美提示詞..."
-                          value={finalText}
-                          onChange={(e) => setFinalText(e.target.value)}
-                          disabled={feedback !== null || isGenerating}
-                        ></textarea>
-                        
-                        {!feedback && (
-                          <button 
-                            onClick={evaluatePractice}
-                            disabled={isGenerating || !finalText.trim()}
-                            className={`w-full text-white font-bold py-3 px-6 rounded-xl transition-colors flex justify-center items-center gap-2 ${
-                              !finalText.trim() ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700'
-                            }`}
-                          >
-                            <BrainCircuit className="w-5 h-5" />
-                            {isGenerating ? "AI 導師審核中..." : "送出給導師評分"}
-                          </button>
-                        )}
+                {/* 第五關：實戰輸入區塊 (模擬評分) */}
+                {currentData.type === 'practice' && (
+                  <div className="mt-6 space-y-4">
+                    <textarea
+                      className="w-full h-32 p-4 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none resize-none text-gray-700 text-lg"
+                      placeholder="請在此輸入你的完美提示詞..."
+                      value={finalText}
+                      onChange={(e) => setFinalText(e.target.value)}
+                      disabled={feedback !== null || isGenerating}
+                    ></textarea>
+                    
+                    {!feedback && (
+                      <button 
+                        onClick={evaluatePractice}
+                        disabled={isGenerating || !finalText.trim()}
+                        className={`w-full text-white font-bold py-3 px-6 rounded-xl transition-colors flex justify-center items-center gap-2 ${
+                          !finalText.trim() ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700'
+                        }`}
+                      >
+                        <IconBrainCircuit className="w-5 h-5"/>
+                        {isGenerating ? "AI 導師審核中..." : "送出給導師評分"}
+                      </button>
+                    )}
 
-                        {evaluation.length > 0 && (
-                          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 mt-4">
-                            <h4 className="font-bold text-slate-800">📝 AI 導師評分單：</h4>
-                            <div className="space-y-2">
-                              {evaluation.map((res, idx) => (
-                                <div key={idx} className={`font-medium p-2 rounded ${res.pass ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
-                                  {res.pass ? '✅' : '❌'} {res.msg}
-                                </div>
-                              ))}
+                    {evaluation.length > 0 && (
+                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 mt-4">
+                        <h4 className="font-bold text-slate-800">📝 AI 導師評分單：</h4>
+                        <div className="space-y-2">
+                          {evaluation.map((res, idx) => (
+                            <div key={idx} className={`font-medium p-2 rounded ${res.pass ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
+                              {res.pass ? '✅' : '❌'} {res.msg}
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* 回饋訊息區塊 */}
-                    {feedback && (
-                      <div className={`mt-6 p-4 rounded-xl flex gap-3 items-start ${
-                        feedback.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {feedback.type === 'success' ? <CheckCircle2 className="w-6 h-6 flex-shrink-0" /> : <XCircle className="w-6 h-6 flex-shrink-0" />}
-                        <div>
-                          <p className="font-bold">{feedback.type === 'success' ? '太棒了！' : '再試一次！'}</p>
-                          <p>{feedback.msg}</p>
+                          ))}
                         </div>
                       </div>
                     )}
                   </div>
+                )}
 
-                  {/* Footer Navigation */}
-                  <div className="mt-8 pt-4 border-t flex justify-end">
-                    {(currentData.type === 'intro' || feedback !== null) && currentData.type !== 'end' && (
-                      <button
-                        onClick={handleNextStep}
-                        className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                      >
-                        {currentStep === steps.length - 2 ? '領取結業證書' : '下一關'}
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
-                    )}
+                {/* 回饋訊息區塊 */}
+                {feedback && (
+                  <div className={`mt-6 p-4 rounded-xl flex gap-3 items-start ${
+                    feedback.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {feedback.type === 'success' ? <IconCheckCircle className="w-6 h-6 flex-shrink-0" /> : <IconXCircle className="w-6 h-6 flex-shrink-0" />}
+                    <div>
+                      <p className="font-bold">{feedback.type === 'success' ? '太棒了！' : '再試一次！'}</p>
+                      <p>{feedback.msg}</p>
+                    </div>
                   </div>
-
-                </div>
+                )}
               </div>
-            </div>
-          );
-        };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+              {/* Footer Navigation */}
+              <div className="mt-8 pt-4 border-t flex justify-end">
+                {(currentData.type === 'intro' || feedback !== null) && currentData.type !== 'end' && (
+                  <button
+                    onClick={handleNextStep}
+                    className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                  >
+                    {currentStep === steps.length - 2 ? '領取結業證書' : '下一關'}
+                    <IconChevronRight className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // 將 React 元件渲染到 HTML 畫面上
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
 </body>
 </html>
